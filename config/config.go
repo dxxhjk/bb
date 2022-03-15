@@ -6,19 +6,31 @@ import (
 	"strconv"
 )
 
-var configFileName = "./config/config"
+var configFileName = "/Users/shiboqing/GolandProjects/bb/config/config"
 var config map[string]interface{}
 
-func GetSocIpList() []string {
-	socIpList := make([]string, 0)
-	for _, ip := range config["soc_ip_list"].([]interface{}) {
-		socIpList = append(socIpList, ip.(string))
+func GetSocPortList() []string {
+	socPortList := make([]string, 0)
+	for _, port := range config["soc_port_list"].([]interface{}) {
+		socPortList = append(socPortList, port.(string))
 	}
-	return socIpList
+	return socPortList
 }
 
 func GetWorPath() string {
 	return config["work_path"].(string)
+}
+
+func GetBaseIp() string {
+	return config["base_ip"].(string)
+}
+
+func GetBmcPort() string {
+	return config["bmc_port"].(string)
+}
+
+func GetLocalPort() string {
+	return config["local_port"].(string)
 }
 
 func InitConfig() error {
@@ -31,8 +43,8 @@ func InitConfig() error {
 	if err != nil {
 		return err
 	}
-	if len(config["soc_ip_list"].([]interface{})) != int(config["soc_num"].(float64)) {
-		err = initSocIpList(config)
+	if len(config["soc_port_list"].([]interface{})) != int(config["soc_num"].(float64)) {
+		err = initSocPortList(config)
 		if err != nil {
 			return err
 		}
@@ -40,16 +52,12 @@ func InitConfig() error {
 	return nil
 }
 
-func initSocIpList(config map[string]interface{}) error {
-	config["soc_ip_list"] = []interface{}{}
+func initSocPortList(config map[string]interface{}) error {
+	config["soc_port_list"] = []interface{}{}
+	socBasePort, _ := strconv.Atoi(config["soc_base_port"].(string))
 	for i := 1; i <= int(config["soc_num"].(float64)); i++ {
-		socIp := strconv.Itoa(i)
-		if len(socIp) == 1 {
-			socIp = config["soc_base_ip"].(string) + "0" + socIp
-		} else {
-			socIp = config["soc_base_ip"].(string) + socIp
-		}
-		config["soc_ip_list"] = append(config["soc_ip_list"].([]interface{}), socIp)
+		socPort := strconv.Itoa(socBasePort + i)
+		config["soc_port_list"] = append(config["soc_port_list"].([]interface{}), socPort)
 	}
 	data, err := json.MarshalIndent(config, "", "	")
 	if err != nil {

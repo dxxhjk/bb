@@ -1,13 +1,11 @@
 {
-	"work_path": "/Users/shiboqing/GolandProjects/bb",
-	"local_ip": "10.128.219.226",
-	"local_port": "10022",
-	"soc_base_ip": "192.168.1.1",
-	"soc_ip_list": [
-		"192.168.1.101",
-		"192.168.1.102",
-		"192.168.1.103"
+	"base_ip": "10.128.219.226",
+	"bmc_port": "29100",
+	"local_port": "20212",
+	"soc_base_port": "29100",
+	"soc_num": 1,
+	"soc_port_list": [
+		"29101"
 	],
-	"soc_num": 3,
-	"soc_port": "5555"
+	"work_path": "/Users/shiboqing/GolandProjects/bb"
 }

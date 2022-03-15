@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bb/config"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
@@ -14,20 +13,12 @@ var(
 		Short: "batch_bench",
 		Long:  "batch_bench",
 		Run: func(cmd *cobra.Command, args []string) {
-			// Do Stuff Here
-			fmt.Println(config.GetSocIpList())
-			fmt.Println(config.GetWorPath())
-			fmt.Println(author)
-			fmt.Printf("running batch_bench command.\n")
+			fmt.Println("使用 bb -h 或者 bb help 查看使用帮助")
 		},
 	}
 )
 
 func init() {
-	if err := config.InitConfig(); err != nil {
-		fmt.Println("Init config error: " + err.Error())
-	}
-	rootCmd.AddCommand(fileCmd)
 	rootCmd.PersistentFlags().StringVarP(&author, "author", "a", "Pad", "author name for copyright attribution")
 }
 
