@@ -1,7 +1,9 @@
 package adb
 
 import (
+	"bb/util"
 	"fmt"
+	"os"
 	"os/exec"
 	"sync"
 )
@@ -46,6 +48,7 @@ func InitSoc(socIp string, socPortList []string) {
 }
 
 func Push(socIp string, socPortList []string, srcFile, des string) {
+	srcFile = util.GetFullPath(srcFile)
 	adbCmdStr := "push " + srcFile + " " + des
 	var adbCmdStrList []string
 	for range socPortList {
@@ -55,10 +58,22 @@ func Push(socIp string, socPortList []string, srcFile, des string) {
 }
 
 func Pull(socIp string, socPortList []string, srcFile, des string) {
-	adbCmdStr := "pull " + srcFile + " " + des
 	var adbCmdStrList []string
+	des = util.GetFullPath(des)
+	if _, err := os.Stat(des); err != nil {
+		fmt.Println("Pull failed: " + des + " is not a dic.")
+		return
+	}
 	for _, socPort := range socPortList {
-		adbCmdStrList = append(adbCmdStrList, adbCmdStr + "_" + socPort)
+		desPath := des + "/" + socPort
+		if _, err := os.Stat(desPath); err != nil {
+			adbCmd := exec.Command("bash", "-c", "mkdir " + desPath)
+			if err = adbCmd.Run(); err != nil {
+				fmt.Println("os command failed:")
+				fmt.Println("mkdir " + des + "/" + socPort)
+			}
+		}
+		adbCmdStrList = append(adbCmdStrList, "pull " + srcFile +  " " + desPath)
 	}
 	execAdbCmd(socIp, socPortList, adbCmdStrList)
 }

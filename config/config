@@ -3,9 +3,13 @@
 	"bmc_port": "29100",
 	"local_port": "20212",
 	"soc_base_port": "29100",
-	"soc_num": 1,
+	"soc_num": 5,
 	"soc_port_list": [
-		"29101"
+		"29101",
+		"29102",
+		"29103",
+		"29104",
+		"29105"
 	],
 	"work_path": "/Users/shiboqing/GolandProjects/bb"
 }
