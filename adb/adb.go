@@ -1,11 +1,14 @@
 package adb
 
 import (
+	"bb/config"
 	"bb/util"
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
 	"sync"
+	"time"
 )
 
 func Init(socIp string, socPortList []string) {
@@ -92,14 +95,45 @@ func execAdbCmd(socIp string, socPortList []string, adbCmdStrList []string) {
 	for i, socPort := range socPortList {
 		wg.Add(1)
 		strToExec := "adb -s " + socIp + ":" + socPort + " " + adbCmdStrList[i]
-		go func(strToExec string) {
+		adbLogPath := config.GetWorkPath() + "adb_log/" + socPort
+		go func(adbCmdStr, strToExec, adbLogPath string) {
 			defer wg.Done()
 			adbCmd := exec.Command("bash", "-c", strToExec)
+			var stdout bytes.Buffer
+			var stderr bytes.Buffer
+			adbCmd.Stdout = &stdout
+			adbCmd.Stderr = &stderr
+			stdoutPath := adbLogPath + "/stdout"
+			stderrPath := adbLogPath + "/stderr"
+			var stdoutf *os.File
+			var stderrf *os.File
+			if !util.CheckDirIsExist(adbLogPath) {
+				err := os.Mkdir(adbLogPath, os.ModePerm)
+				if err != nil {
+					fmt.Println("Error: mkdir failed." + err.Error())
+					return
+				}
+			}
+			stdoutf, err1 := util.OpenFile(stdoutPath)
+			stderrf, err2 := util.OpenFile(stderrPath)
+			if err1 != nil || err2 != nil {
+				fmt.Println("Error: open file failed.", err1, err2)
+				return
+			}
+			defer stdoutf.Close()
+			defer stderrf.Close()
+			now := time.Now()
+			timeStr := fmt.Sprintf("%02d-%02d-%02d %02d:%02d:%02d",
+				now.Year(),now.Month(),now.Day(),now.Hour(),now.Minute(),now.Second())
 			if err := adbCmd.Run(); err != nil {
 				fmt.Println("os command failed:")
 				fmt.Println(strToExec)
 			}
-		}(strToExec)
+			stdoutf.WriteString(timeStr + " # " + adbCmdStr + "\n")
+			stderrf.WriteString(timeStr + " # " + adbCmdStr + "\n")
+			stdoutf.WriteString(stdout.String())
+			stderrf.WriteString(stderr.String())
+		}(adbCmdStrList[i], strToExec, adbLogPath)
 	}
 	wg.Wait()
 	fmt.Println("finish exec command, the first of them is:\n" + adbCmdStrList[0])

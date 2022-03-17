@@ -15,7 +15,7 @@ func init() {
 	}
 	collectResultCmd.Flags().StringVarP(&fileToCollect, "file_path", "f", "your_file/dic_name", "The name of the file to be distributed in the \"file\" folder")
 	collectResultCmd.MarkFlagRequired("file_path")
-	collectResultCmd.Flags().StringVarP(&localPathToSaveFiles, "destination", "d", config.GetWorPath() + "/result", "Path to save the file")
+	collectResultCmd.Flags().StringVarP(&localPathToSaveFiles, "destination", "d", config.GetWorkPath() + "result", "Path to save the file")
 	collectResultCmd.Flags().StringVarP(&startSocPort, "start_soc_port", "s",
 		config.GetSocPortList()[0], "The name of the file to be distributed in the \"file\" folder")
 	collectResultCmd.Flags().StringVarP(&socNum, "soc_num", "n", strconv.Itoa(len(config.GetSocPortList())), "The name of the file to be distributed in the \"file\" folder")

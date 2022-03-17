@@ -17,7 +17,7 @@ func GetSocPortList() []string {
 	return socPortList
 }
 
-func GetWorPath() string {
+func GetWorkPath() string {
 	return config["work_path"].(string)
 }
 

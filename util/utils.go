@@ -4,9 +4,39 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 )
+
+func OpenFile(filePath string) (*os.File, error) {
+	if CheckFileIsExist(filePath) { //如果文件存在
+		return os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, os.ModeAppend) //打开文件
+	} else {
+		return os.Create(filePath) //创建文件
+	}
+}
+
+func CheckDirIsExist(dirPath string) bool {
+	s, err := os.Stat(dirPath)
+	if err != nil {
+		return false
+	}
+	return s.IsDir()
+}
+
+
+func CheckFileIsExist(filePath string) bool {
+	// 读取文件信息，判断文件是否存在
+	_, err := os.Stat(filePath)
+	if err != nil{
+		if os.IsExist(err){  // 根据错误类型进行判断
+			return true
+		}
+		return false
+	}
+	return true
+}
 
 func GetFullPath(path string) string {
 	pwdCmd := exec.Command("bash", "-c", "pwd")
