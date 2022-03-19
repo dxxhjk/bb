@@ -7,7 +7,23 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 )
+
+func StrSpaceTo_(str string) string {
+	str = strings.Split(str, ">")[0]
+	newStr := ""
+	for _, c := range str {
+		if c != ' ' && c != '/' {
+			newStr += string(c)
+		} else if c == ' ' {
+			newStr += "_"
+		} else if c == '/' {
+			newStr += "^"
+		}
+	}
+	return newStr
+}
 
 func OpenFile(filePath string) (*os.File, error) {
 	if CheckFileIsExist(filePath) { //如果文件存在

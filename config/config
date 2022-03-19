@@ -1,6 +1,6 @@
 {
 	"base_ip": "10.128.219.226",
-	"bmc_port": "29100",
+	"bmc_port": "10022",
 	"local_port": "20212",
 	"soc_base_port": "29100",
 	"soc_num": 5,

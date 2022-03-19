@@ -16,12 +16,14 @@ func init() {
 	execCmd.Flags().StringVarP(&startSocPort, "start_soc_port", "s",
 		config.GetSocPortList()[0], "The name of the file to be distributed in the \"file\" folder")
 	execCmd.Flags().StringVarP(&socNum, "soc_num", "n", strconv.Itoa(len(config.GetSocPortList())), "The name of the file to be distributed in the \"file\" folder")
+	execCmd.Flags().BoolVarP(&energyMonitor, "energy_monitor", "e", false, "Whether to monitor the command energy consumption")
 
 	rootCmd.AddCommand(execCmd)
 }
 
 var (
 	command string
+	energyMonitor bool
 
 	execCmd = &cobra.Command{
 		Use:   "exec",
@@ -35,7 +37,8 @@ var (
 				fmt.Println(err)
 				return
 			}
-			adb.Shell(socIp, socPortList, command)
+			adb.Init(socIp, socPortList)
+			adb.Shell(socIp, socPortList, command, energyMonitor)
 		},
 	}
 )

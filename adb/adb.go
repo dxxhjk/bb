@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -27,27 +29,12 @@ func Init(socIp string, socPortList []string) {
 		}(adbCmdStr)
 	}
 	wg.Wait()
-	fmt.Println("finish init adb")
+	fmt.Println("adb init finished")
 }
 
-func InitSoc(socIp string, socPortList []string) {
+func InitSocWorkSpace(socIp string, socPortList []string) {
 	// 每个 soc 创建 /data/bb_workspace 文件夹
-	var wg sync.WaitGroup
-	for _, socPort := range socPortList {
-		wg.Add(1)
-		adbCmdStr := "adb -s " + socIp + ":" + socPort + " shell \"mkdir /data/bb_workspace\""
-		go func(adbCmdStr string) {
-			defer wg.Done()
-			adbCmd := exec.Command("bash", "-c", adbCmdStr)
-			if err := adbCmd.Run(); err != nil {
-				fmt.Println("os command failed:")
-				fmt.Println(adbCmdStr)
-				fmt.Println(err)
-			}
-		}(adbCmdStr)
-	}
-	wg.Wait()
-	fmt.Println("finish init adb")
+	Shell(socIp, socPortList, "mkdir /data/bb_workspace", false)
 }
 
 func Push(socIp string, socPortList []string, srcFile, des string) {
@@ -57,7 +44,7 @@ func Push(socIp string, socPortList []string, srcFile, des string) {
 	for range socPortList {
 		adbCmdStrList = append(adbCmdStrList, adbCmdStr)
 	}
-	execAdbCmd(socIp, socPortList, adbCmdStrList)
+	execAdbCmd(socIp, socPortList, adbCmdStrList, false)
 }
 
 func Pull(socIp string, socPortList []string, srcFile, des string) {
@@ -78,20 +65,62 @@ func Pull(socIp string, socPortList []string, srcFile, des string) {
 		}
 		adbCmdStrList = append(adbCmdStrList, "pull " + srcFile +  " " + desPath)
 	}
-	execAdbCmd(socIp, socPortList, adbCmdStrList)
+	execAdbCmd(socIp, socPortList, adbCmdStrList, false)
 }
 
-func Shell(socIp string, socPortList []string, command string) {
-	adbCmdStr := "shell " + command
+func Shell(socIp string, socPortList []string, command string, energy bool) {
+	adbCmdStr := "shell \"" + command + "\""
 	var adbCmdStrList []string
 	for  range socPortList {
 		adbCmdStrList = append(adbCmdStrList, adbCmdStr)
 	}
-	execAdbCmd(socIp, socPortList, adbCmdStrList)
+	if energy {
+		socPortList, adbCmdStrList = addBmc(socPortList, adbCmdStrList, command)
+	}
+	execAdbCmd(socIp, socPortList, adbCmdStrList, energy)
 }
 
-func execAdbCmd(socIp string, socPortList []string, adbCmdStrList []string) {
+func addBmc(socPortList, adbCmdStrList []string, command string) ([]string, []string) {
+	command = util.StrSpaceTo_(command)
+	now := time.Now()
+	timeStr := fmt.Sprintf("%02d-%02d-%02d-%02d:%02d:%02d",
+		now.Year(),now.Month(),now.Day(),now.Hour(),now.Minute(),now.Second())
+	socPortList = append([]string{config.GetBmcPort()}, socPortList...)
+	bmcCmdStr := "/root/bmc_batch_usage_monitor.sh " + command + "_" + timeStr + " &"
+	adbCmdStrList = append([]string{bmcCmdStr}, adbCmdStrList...)
+	return socPortList, adbCmdStrList
+}
+
+func execAdbCmd(socIp string, socPortList []string, adbCmdStrList []string, energy bool) {
 	var wg sync.WaitGroup
+	var bmcPort string
+	var energyMonitorCmdStr string
+	var bmcPid string
+	var bmcPidCh chan string
+	if energy {
+		bmcPort, energyMonitorCmdStr = socPortList[0], adbCmdStrList[0]
+		socPortList, adbCmdStrList = socPortList[1:], adbCmdStrList[1:]
+		getPidCmdStr := "ssh -p " + bmcPort + " root@" + socIp + " \"" + "ps -ef | grep \"/root/bmc_batch_usage_monitor.sh\" | grep -v grep\""
+		energyMonitorCmdStr = "ssh -p " + bmcPort + " root@" + socIp + " \"" + energyMonitorCmdStr + "\" &"
+		bmcPidCh = make(chan string)
+		go func(bmcCmdStr, getPidCmdStr string, ch chan string) {
+			energyMonitorCmd := exec.Command("bash", "-c", bmcCmdStr)
+			fmt.Println(bmcCmdStr)
+			getPidCmd := exec.Command("bash", "-c", getPidCmdStr)
+			var stdout bytes.Buffer
+			getPidCmd.Stdout = &stdout
+			if err := energyMonitorCmd.Run(); err != nil {
+				fmt.Println("start energy monitor failed.")
+			}
+			time.Sleep(3000 * time.Millisecond)
+			if err := getPidCmd.Run(); err != nil {
+				fmt.Println("get energy monitor pid failed.")
+			}
+			bmcPidCh <- stdout.String()
+			//bmcPidCh <- strings.Split(stdout.String(), " ")[1]
+		}(energyMonitorCmdStr, getPidCmdStr,bmcPidCh)
+		time.Sleep(3000 * time.Millisecond)
+	}
 	for i, socPort := range socPortList {
 		wg.Add(1)
 		strToExec := "adb -s " + socIp + ":" + socPort + " " + adbCmdStrList[i]
@@ -136,6 +165,21 @@ func execAdbCmd(socIp string, socPortList []string, adbCmdStrList []string) {
 		}(adbCmdStrList[i], strToExec, adbLogPath)
 	}
 	wg.Wait()
+	if energy {
+		bmcPid = <-bmcPidCh
+		for _, bmcSplitStr := range strings.Split(bmcPid, " ") {
+			if bmcSplitStr != " " {
+				if _, err := strconv.Atoi(bmcSplitStr); err == nil {
+					bmcPid = bmcSplitStr
+					break
+				}
+			}
+		}
+		sshCmd := exec.Command("bash", "-c", "ssh -p " + bmcPort + " root@" + socIp + " \"" + "kill -9 " + bmcPid + "\"")
+		if err := sshCmd.Run(); err != nil {
+			fmt.Println("kill energy monitor failed:", err)
+		}
+	}
 	fmt.Println("finish exec command, the first of them is:\n" + adbCmdStrList[0])
 }
 
