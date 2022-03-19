@@ -9,6 +9,7 @@ go install .
 echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.bashrc
 source ~/.bashrc
 ```
+在 bb 下新建两个目录：`bb/adb_log` 和 `bb/result`
 
 ## 配置
 配置文件是 `bb/congig` 目录下的config文件，将工作目录配置为 `"work_path": "your_path_to_bb"`

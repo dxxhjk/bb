@@ -7,7 +7,6 @@ import (
 )
 
 var(
-	author string
 	rootCmd = &cobra.Command{
 		Use:   "bb",
 		Short: "batch_bench",
@@ -18,9 +17,7 @@ var(
 	}
 )
 
-func init() {
-	rootCmd.PersistentFlags().StringVarP(&author, "author", "a", "Pad", "author name for copyright attribution")
-}
+func init() {}
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {

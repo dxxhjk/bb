@@ -105,7 +105,6 @@ func execAdbCmd(socIp string, socPortList []string, adbCmdStrList []string, ener
 		bmcPidCh = make(chan string)
 		go func(bmcCmdStr, getPidCmdStr string, ch chan string) {
 			energyMonitorCmd := exec.Command("bash", "-c", bmcCmdStr)
-			fmt.Println(bmcCmdStr)
 			getPidCmd := exec.Command("bash", "-c", getPidCmdStr)
 			var stdout bytes.Buffer
 			getPidCmd.Stdout = &stdout
@@ -117,14 +116,24 @@ func execAdbCmd(socIp string, socPortList []string, adbCmdStrList []string, ener
 				fmt.Println("get energy monitor pid failed.")
 			}
 			bmcPidCh <- stdout.String()
-			//bmcPidCh <- strings.Split(stdout.String(), " ")[1]
 		}(energyMonitorCmdStr, getPidCmdStr,bmcPidCh)
+		bmcPid = <-bmcPidCh
+		for _, bmcSplitStr := range strings.Split(bmcPid, " ") {
+			if bmcSplitStr != " " {
+				if _, err := strconv.Atoi(bmcSplitStr); err == nil {
+					bmcPid = bmcSplitStr
+					break
+				}
+			}
+		}
+		fmt.Println("The PID of BMC energy monitoring is " + bmcPid + ". Remember to kill if you exit unexpectedly")
 		time.Sleep(3000 * time.Millisecond)
 	}
+
 	for i, socPort := range socPortList {
 		wg.Add(1)
 		strToExec := "adb -s " + socIp + ":" + socPort + " " + adbCmdStrList[i]
-		adbLogPath := config.GetWorkPath() + "adb_log/" + socPort
+		adbLogPath := config.GetWorkPath() + "/adb_log/" + socPort
 		go func(adbCmdStr, strToExec, adbLogPath string) {
 			defer wg.Done()
 			adbCmd := exec.Command("bash", "-c", strToExec)
@@ -166,15 +175,6 @@ func execAdbCmd(socIp string, socPortList []string, adbCmdStrList []string, ener
 	}
 	wg.Wait()
 	if energy {
-		bmcPid = <-bmcPidCh
-		for _, bmcSplitStr := range strings.Split(bmcPid, " ") {
-			if bmcSplitStr != " " {
-				if _, err := strconv.Atoi(bmcSplitStr); err == nil {
-					bmcPid = bmcSplitStr
-					break
-				}
-			}
-		}
 		sshCmd := exec.Command("bash", "-c", "ssh -p " + bmcPort + " root@" + socIp + " \"" + "kill -9 " + bmcPid + "\"")
 		if err := sshCmd.Run(); err != nil {
 			fmt.Println("kill energy monitor failed:", err)

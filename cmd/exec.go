@@ -12,7 +12,6 @@ import (
 func init() {
 	execCmd.Flags().StringVarP(&command, "command", "c", "", "command to exec")
 	execCmd.MarkFlagRequired("command")
-	execCmd.Flags().StringVarP(&localPathToSaveFiles, "destination", "d", config.GetWorkPath() + "result", "Path to save the file")
 	execCmd.Flags().StringVarP(&startSocPort, "start_soc_port", "s",
 		config.GetSocPortList()[0], "The name of the file to be distributed in the \"file\" folder")
 	execCmd.Flags().StringVarP(&socNum, "soc_num", "n", strconv.Itoa(len(config.GetSocPortList())), "The name of the file to be distributed in the \"file\" folder")

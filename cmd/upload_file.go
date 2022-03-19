@@ -23,7 +23,7 @@ var (
 		Short: "get upload file command",
 		Long: `show the command to upload file from local to clusters BMC`,
 		Run: func(cmd *cobra.Command, args []string) {
-			localPath := config.GetWorkPath() + "file/"
+			localPath := config.GetWorkPath() + "/file/"
 			localIp := config.GetBaseIp()
 			localPort := config.GetLocalPort()
 			fmt.Println("use command:")
