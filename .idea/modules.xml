@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/BatchBench.iml" filepath="$PROJECT_DIR$/.idea/BatchBench.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/bb.iml" filepath="$PROJECT_DIR$/.idea/bb.iml" />
     </modules>
   </component>
 </project>

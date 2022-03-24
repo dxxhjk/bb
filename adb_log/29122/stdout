@@ -1,0 +1,15 @@
+2022-03-23 13:34:11 # push /Users/shiboqing/Downloads/tmp /data/bb_workspace
+adb: error: failed to read copy response
+adb: error: failed to read copy response
+[ 62%] /data/bb_workspace/tmp/resnet152.tflite: 48%
+2022-03-23 14:52:46 # shell "rm -rf /data/bb_workspace/tmp"
+2022-03-23 15:13:55 # shell "rm -rf /data/bb_workspace/tmp"
+2022-03-23 15:15:13 # push /Users/shiboqing/Downloads/tmp/benchmark_model /data/bb_workspace
+/Users/shiboqing/Downloads/tmp/benchmark_model: 1 file pushed, 0 skipped. 0.1 MB/s (6526864 bytes in 108.301s)
+2022-03-23 16:01:47 # shell "rm -rf /data/bb_workspace/benchmark_model"
+2022-03-23 16:03:19 # shell "pwd"
+/
+2022-03-23 16:06:44 # shell "pwd"
+/
+2022-03-24 11:02:53 # shell "pwd"
+/

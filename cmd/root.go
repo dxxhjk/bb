@@ -7,6 +7,8 @@ import (
 )
 
 var(
+	internal bool
+
 	rootCmd = &cobra.Command{
 		Use:   "bb",
 		Short: "batch_bench",
@@ -17,7 +19,9 @@ var(
 	}
 )
 
-func init() {}
+func init() {
+	rootCmd.PersistentFlags().BoolVarP(&internal, "internal_mode", "i", false, "internal mode, whether running on the server")
+}
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {

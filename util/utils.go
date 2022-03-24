@@ -83,3 +83,18 @@ func GetDesignatedPortList(startSocPort, socNum string, socPortList []string) ([
 	}
 	return socPortList[start - socPort0:start - socPort0 + num], nil
 }
+
+
+func GetDesignatedIpList(startSocIp, socNum string, socIpList []string) ([]string, error) {
+	start, _ := strconv.Atoi(strings.Split(startSocIp, ".")[3])
+	num, _ := strconv.Atoi(socNum)
+	socIp0, _ := strconv.Atoi(strings.Split(socIpList[0], ".")[3])
+	socIpLast, _ := strconv.Atoi(strings.Split(socIpList[len(socIpList) - 1], ".")[3])
+	if socIp0 > start {
+		return nil, errors.New("Error: the start_soc_port must not be less than " + strconv.Itoa(socIp0))
+	}
+	if start + num - 1 > socIpLast {
+		return nil, errors.New("Error: the last_soc_port must not be greater than " + strconv.Itoa(socIpLast))
+	}
+	return socIpList[start - socIp0:start - socIp0 + num], nil
+}

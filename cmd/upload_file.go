@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"bb/config"
-	"fmt"
+	"bb/handler"
 	"github.com/spf13/cobra"
 )
 
@@ -23,13 +22,7 @@ var (
 		Short: "get upload file command",
 		Long: `show the command to upload file from local to clusters BMC`,
 		Run: func(cmd *cobra.Command, args []string) {
-			localPath := config.GetWorkPath() + "/file/"
-			localIp := config.GetBaseIp()
-			localPort := config.GetLocalPort()
-			fmt.Println("use command:")
-			fmt.Println("scp -r -P " + localPort + " " +
-				filePath + " " + loginName + "@" +
-				localIp + ":" + localPath)
+			handler.UploadFile(filePath, loginName)
 		},
 	}
 )
