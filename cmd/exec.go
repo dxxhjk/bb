@@ -14,6 +14,7 @@ func init() {
 		config.GetSocIpListInternal()[0], "It is used to specify the port number or IP of the starting soc. If internal mode is enabled, specify the IP")
 	execCmd.Flags().StringVarP(&socNum, "soc_num", "n", strconv.Itoa(len(config.GetSocPortList())), "The name of the file to be distributed in the \"file\" folder")
 	execCmd.Flags().BoolVarP(&energyMonitor, "energy_monitor", "e", false, "Whether to monitor the command energy consumption")
+	execCmd.Flags().StringVarP(&energyMonitorOutput, "energy_monitor_output_file", "o", "", "Energy monitor output file name, effective only when -e flag is selected")
 
 	rootCmd.AddCommand(execCmd)
 }
@@ -21,6 +22,7 @@ func init() {
 var (
 	command string
 	energyMonitor bool
+	energyMonitorOutput string
 
 	execCmd = &cobra.Command{
 		Use:   "exec",
@@ -28,9 +30,9 @@ var (
 		Long: `exec a command on designated soc`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if internal {
-				handler.ExecInternal(startSoc, socNum, command, energyMonitor)
+				handler.ExecInternal(startSoc, socNum, command, energyMonitor, energyMonitorOutput)
 			} else {
-				handler.Exec(startSoc, socNum, command, energyMonitor)
+				handler.Exec(startSoc, socNum, command, energyMonitor, energyMonitorOutput)
 			}
 		},
 	}

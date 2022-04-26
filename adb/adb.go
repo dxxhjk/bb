@@ -34,7 +34,7 @@ func Init(socIp string, socPortList []string) {
 
 func InitSocWorkSpace(socIp string, socPortList []string) {
 	// 每个 soc 创建 /data/bb_workspace 文件夹
-	Shell(socIp, socPortList, "mkdir /data/bb_workspace", false)
+	Shell(socIp, socPortList, "mkdir /data/bb_workspace", false, "")
 }
 
 func Push(socIp string, socPortList []string, srcFile, des string) {
@@ -68,26 +68,32 @@ func Pull(socIp string, socPortList []string, srcFile, des string) {
 	execAdbCmd(socIp, socPortList, adbCmdStrList, false)
 }
 
-func Shell(socIp string, socPortList []string, command string, energy bool) {
+func Shell(socIp string, socPortList []string, command string, energy bool, energyMonitorOutput string) {
 	adbCmdStr := "shell \"" + command + "\""
 	var adbCmdStrList []string
 	for  range socPortList {
 		adbCmdStrList = append(adbCmdStrList, adbCmdStr)
 	}
 	if energy {
-		socPortList, adbCmdStrList = addBmc(socPortList, adbCmdStrList, command)
+		socPortList, adbCmdStrList = addBmc(socPortList, adbCmdStrList, command, energyMonitorOutput)
 	}
 	execAdbCmd(socIp, socPortList, adbCmdStrList, energy)
 }
 
-func addBmc(socPortList, adbCmdStrList []string, command string) ([]string, []string) {
-	command = util.StrSpaceTo_(command)
-	now := time.Now()
-	timeStr := fmt.Sprintf("%02d-%02d-%02d-%02d:%02d:%02d",
-		now.Year(),now.Month(),now.Day(),now.Hour(),now.Minute(),now.Second())
-	socPortList = append([]string{config.GetBmcPort()}, socPortList...)
-	bmcCmdStr := "/root/bmc_batch_usage_monitor.sh " + command + "_" + timeStr + " &"
-	adbCmdStrList = append([]string{bmcCmdStr}, adbCmdStrList...)
+func addBmc(socPortList, adbCmdStrList []string, command string, energyMonitorOutput string) ([]string, []string) {
+	if energyMonitorOutput == "" {
+		command = util.StrSpaceTo_(command)
+		now := time.Now()
+		timeStr := fmt.Sprintf("%02d-%02d-%02d-%02d:%02d:%02d",
+			now.Year(),now.Month(),now.Day(),now.Hour(),now.Minute(),now.Second())
+		socPortList = append([]string{config.GetBmcPort()}, socPortList...)
+		bmcCmdStr := "/root/bmc_batch_usage_monitor.sh " + command + "_" + timeStr + " &"
+		adbCmdStrList = append([]string{bmcCmdStr}, adbCmdStrList...)
+	}  else {
+		socPortList = append([]string{config.GetBmcPort()}, socPortList...)
+		bmcCmdStr := "/root/bmc_batch_usage_monitor.sh " + energyMonitorOutput + " &"
+		adbCmdStrList = append([]string{bmcCmdStr}, adbCmdStrList...)
+	}
 	return socPortList, adbCmdStrList
 }
 

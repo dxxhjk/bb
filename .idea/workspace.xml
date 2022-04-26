@@ -5,22 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68cdaac5-3f87-407c-a4df-0c7e4908efc0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/adb/adb_internal.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/handler/collect_result_handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/handler/distribute_file_handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/handler/exec_handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/handler/upload_file_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/bb.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/bb.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/collect_result.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/collect_result.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/distribute_file.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/distribute_file.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/exec.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/exec.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/root.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/root.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/upload_file.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/upload_file.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config" beforeDir="false" afterPath="$PROJECT_DIR$/config/config" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/util/utils.go" beforeDir="false" afterPath="$PROJECT_DIR$/util/utils.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,6 +59,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>

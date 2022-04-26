@@ -1,7 +1,13 @@
 # bb
 ## 安装
+启用 go mod 
+```shell
+echo 'export GO111MODULE=on' >> ~/.bashrc
+echo 'export GOPROXY=https://mirrors.aliyun.com/goproxy/' >> ~/.bashrc
+```
 项目目录下使用
 ```sh
+go mod tidy
 go install .
 ```
 则编译好的可执行文件`bb`安装到了`$GOPATH/bin`下，将其添加到系统路径中
@@ -63,3 +69,7 @@ bb -h
 使用示例：
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/89baf30a3dc34c2c965bf2400a31f82c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6LS06LS05paw56eR5aiY,size_20,color_FFFFFF,t_70,g_se,x_16)
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/6bf2ddbe54654b4885e59b843784ac87.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6LS06LS05paw56eR5aiY,size_20,color_FFFFFF,t_70,g_se,x_16)
+
+# TODO
+- 能量监测指定文件名
+- 批量 kill 包含指定字符串的进程

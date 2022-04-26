@@ -63,26 +63,32 @@ func PullInternal(socIpList []string, socPort string, srcFile, des string) {
 	execAdbCmdInternal(socIpList, "", socPort, adbCmdStrList, false)
 }
 
-func ShellInternal(socIpList []string, bmcPort, socPort string, command string, energy bool) {
+func ShellInternal(socIpList []string, bmcPort, socPort string, command string, energy bool, energyMonitorOutput string) {
 	adbCmdStr := "shell \"" + command + "\""
 	var adbCmdStrList []string
 	for  range socIpList {
 		adbCmdStrList = append(adbCmdStrList, adbCmdStr)
 	}
 	if energy {
-		socIpList, adbCmdStrList = addBmcInternal(socIpList, adbCmdStrList, command)
+		socIpList, adbCmdStrList = addBmcInternal(socIpList, adbCmdStrList, command, energyMonitorOutput)
 	}
 	execAdbCmdInternal(socIpList, bmcPort, socPort, adbCmdStrList, energy)
 }
 
-func addBmcInternal(socIpList, adbCmdStrList []string, command string) ([]string, []string) {
-	command = util.StrSpaceTo_(command)
-	now := time.Now()
-	timeStr := fmt.Sprintf("%02d-%02d-%02d-%02d:%02d:%02d",
-		now.Year(),now.Month(),now.Day(),now.Hour(),now.Minute(),now.Second())
-	socIpList = append([]string{config.GetBmcIpInternal()}, socIpList...)
-	bmcCmdStr := "/root/bmc_batch_usage_monitor.sh " + command + "_" + timeStr + " &"
-	adbCmdStrList = append([]string{bmcCmdStr}, adbCmdStrList...)
+func addBmcInternal(socIpList, adbCmdStrList []string, command string, energyMonitorOutput string) ([]string, []string) {
+	if energyMonitorOutput == "" {
+		command = util.StrSpaceTo_(command)
+		now := time.Now()
+		timeStr := fmt.Sprintf("%02d-%02d-%02d-%02d:%02d:%02d",
+			now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())
+		socIpList = append([]string{config.GetBmcIpInternal()}, socIpList...)
+		bmcCmdStr := "/root/bmc_batch_usage_monitor.sh " + command + "_" + timeStr + " &"
+		adbCmdStrList = append([]string{bmcCmdStr}, adbCmdStrList...)
+	} else {
+		socIpList = append([]string{config.GetBmcIpInternal()}, socIpList...)
+		bmcCmdStr := "/root/bmc_batch_usage_monitor.sh " + energyMonitorOutput + " &"
+		adbCmdStrList = append([]string{bmcCmdStr}, adbCmdStrList...)
+	}
 	return socIpList, adbCmdStrList
 }
 
@@ -103,12 +109,15 @@ func execAdbCmdInternal(socIpList []string, bmcPort, socPort string, adbCmdStrLi
 			getPidCmd := exec.Command("bash", "-c", getPidCmdStr)
 			var stdout bytes.Buffer
 			getPidCmd.Stdout = &stdout
+			var stderr bytes.Buffer
+			getPidCmd.Stderr = &stderr
 			if err := energyMonitorCmd.Run(); err != nil {
 				fmt.Println("start energy monitor failed.")
 			}
 			time.Sleep(3000 * time.Millisecond)
 			if err := getPidCmd.Run(); err != nil {
 				fmt.Println("get energy monitor pid failed.")
+				fmt.Println(stderr.String())
 			}
 			bmcPidCh <- stdout.String()
 		}(energyMonitorCmdStr, getPidCmdStr,bmcPidCh)
